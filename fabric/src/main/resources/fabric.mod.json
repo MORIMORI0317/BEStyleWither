@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "bestylewither",
+  "version": "${version}",
+  "name": "BE Style Wither",
+  "description": "This mod brings the behavior of Wither closer to Bedrock Edition.\nThe ikisugi wither mod...",
+  "authors": [
+    "MORIMORI0317"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "GNU LGPLv3",
+  "icon": "assets/bestylewither/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.morimori0317.bestylewither.fabric.BEStyleWitherFabric"
+    ],
+    "client": [
+      "net.morimori0317.bestylewither.fabric.client.BEStyleWitherClientFabric"
+    ]
+  },
+  "mixins": [
+    "bestylewither.mixins.json",
+    "bestylewither-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.18.2"
+  }
+}

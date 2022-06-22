@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "package": "net.morimori0317.bestylewither.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "client": [
+    "client.LivingEntityRendererMixin",
+    "client.WitherBossModelMixin",
+    "client.WitherBossRendererMixin"
+  ],
+  "mixins": [
+    "EntityAccessor",
+    "WitherBossMixin",
+    "WitherSkullMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
