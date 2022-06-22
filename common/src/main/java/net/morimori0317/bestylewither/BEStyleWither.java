@@ -4,6 +4,7 @@ public class BEStyleWither {
     public static final String MODID = "bestylewither";
 
     public static void init() {
+    
     }
 
     //青いウィザースカルを微調整-/

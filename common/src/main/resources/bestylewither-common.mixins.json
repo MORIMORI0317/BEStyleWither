@@ -3,6 +3,7 @@
   "package": "net.morimori0317.bestylewither.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
+    "client.EnergySwirlLayerMixin",
     "client.LivingEntityRendererMixin",
     "client.WitherBossModelMixin",
     "client.WitherBossRendererMixin"
