@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EnergySwirlLayer.class)
-public abstract class EnergySwirlLayerMixin<T extends Entity & PowerableMob, M extends EntityModel<T>> {
+public abstract class EnergySwirlLayerMixin<T extends Entity & PowerableMob> {
     private static final ResourceLocation POWER_LOCATION_BLUE = new ResourceLocation("textures/entity/creeper/creeper_armor.png");
 
     @Shadow
@@ -28,10 +28,8 @@ public abstract class EnergySwirlLayerMixin<T extends Entity & PowerableMob, M e
     @Shadow
     protected abstract float xOffset(float f);
 
-    @Shadow
-    protected abstract ResourceLocation getTextureLocation();
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;copyPropertiesTo(Lnet/minecraft/client/model/EntityModel;)V", ordinal = 0, shift = At.Shift.AFTER), cancellable = true)
+    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/Entity;FFFFFF)V", at = @At(value = "HEAD"), cancellable = true)
     private void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, T entity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
         if (entity instanceof WitherBoss witherBoss && ((BEWitherBoss) witherBoss).getWitherDeathTime() > 0) {
             ci.cancel();

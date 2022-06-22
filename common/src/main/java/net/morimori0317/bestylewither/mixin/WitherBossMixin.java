@@ -119,7 +119,7 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
                     setHealth(0);
                     SoundEvent soundevent = this.getDeathSound();
                     if (soundevent != null)
-                        this.playSound(soundevent, this.getSoundVolume() *1.5f, this.getVoicePitch());
+                        this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
 
                     die(lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource);
                 }
@@ -196,7 +196,7 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
             boolean exFlg = false;
 
             if (clip.getType() != HitResult.Type.MISS) {
-                flg = Math.sqrt(clip.distanceTo(this)) <= 1 || isOnGround();
+                flg = Math.sqrt(clip.distanceTo(this)) <= 1 || isOnGround() || isInWater() || isInWall();
                 exFlg = true;
             }
 

@@ -8,8 +8,9 @@
     "MORIMORI0317"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/be-style-wither",
+    "sources": "https://github.com/MORIMORI0317/BEStyleWither",
+    "issues": "https://github.com/MORIMORI0317/BEStyleWither/issues"
   },
   "license": "GNU LGPLv3",
   "icon": "assets/bestylewither/icon.png",
@@ -23,7 +24,6 @@
     ]
   },
   "mixins": [
-    "bestylewither.mixins.json",
     "bestylewither-common.mixins.json"
   ],
   "depends": {

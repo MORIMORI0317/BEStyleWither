@@ -1,6 +1,5 @@
 package net.morimori0317.bestylewither.entity.goal;
 
-import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
