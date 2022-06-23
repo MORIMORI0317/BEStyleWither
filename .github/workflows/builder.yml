@@ -19,7 +19,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew build generateChangelog publish curseforge modrinth --stacktrace --no-daemon
+        run: |
+          ./gradlew generateChangelog 
+          ./gradlew build publish curseforge modrinth --stacktrace --no-daemon
         env:
           curesforgeapikey: ${{secrets.CURESFORGEAPIKEY}}
           modrinthapikey: ${{secrets.MODRINTH}}
