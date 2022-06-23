@@ -1,6 +1,7 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
+    id "dev.felnull.felnull-change-logger" version "1.1"
 }
 
 architectury {
@@ -40,4 +41,9 @@ allprojects {
     java {
         withSourcesJar()
     }
+}
+
+changelog {
+    githubToken = System.getenv('githubtoken')
+    releaseType = "release"
 }

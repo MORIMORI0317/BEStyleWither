@@ -32,6 +32,7 @@ import java.util.Random;
 
 @Mixin(WitherBoss.class)
 public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
+    private static final int MAX_WITHER_DEATH_TIME = 20 * 10;
     private int witherDeathTime;
     private int witherDeathTimeOld;
     private int chargeTickCoolDown;
@@ -96,49 +97,62 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
         setDeath(compoundTag.getBoolean("WitherDeath"));
     }
 
+    @Override
+    public void baseTick() {
+        if (isDeath()) {
+            if (this.lastHurtByPlayerTime > 0) this.lastHurtByPlayerTime++;
+        }
+        super.baseTick();
+    }
+
     @Inject(method = "aiStep", at = @At("HEAD"), cancellable = true)
     private void aiStepPre(CallbackInfo ci) {
         if (isDeath()) {
+            if (this.witherDeathTime >= MAX_WITHER_DEATH_TIME) return;
+
             this.setHealth(1.0F);
 
             this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
-
-            ++this.witherDeathTime;
-            this.witherDeathTime = Math.min(this.witherDeathTime, 20 * 10);
+            this.witherDeathTime++;
 
             if (!this.level.isClientSide()) {
                 if (this.witherDeathTime % 4 == 0)
                     setForcedPowered(random.nextInt((int) Math.max(5 - ((float) this.witherDeathTime / (20f * 10f) * 5f), 1)) == 0);
 
-                if (this.witherDeathTime == 20 * 10) {
+                if (this.witherDeathTime == MAX_WITHER_DEATH_TIME && !isDeadOrDying()) {
                     var interaction = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
                     this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, interaction);
                     if (!this.isSilent())
                         this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
 
-                    setHealth(0);
                     SoundEvent soundevent = this.getDeathSound();
                     if (soundevent != null)
                         this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
 
-                    die(lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource);
+                    hurt(lastDeathDamageSource, Float.MAX_VALUE);
+                    if (!isDeadOrDying()) {
+                        setHealth(0);
+                        die(lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource);
+                    }
                 }
             }
-
             ci.cancel();
         }
     }
 
+    @Override
+    public boolean isAlive() {
+        return super.isAlive() && !isDeath();
+    }
+
     @Inject(method = "getDeathSound", at = @At("RETURN"), cancellable = true)
     private void getDeathSound(CallbackInfoReturnable<SoundEvent> cir) {
-        if (!isDeath())
-            cir.setReturnValue(null);
+        if (!isDeath()) cir.setReturnValue(null);
     }
 
     @Override
     public void playAmbientSound() {
-        if (!isDeath())
-            super.playAmbientSound();
+        if (!isDeath()) super.playAmbientSound();
     }
 
     @Override
@@ -151,8 +165,8 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
     }
 
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void hurtPre(DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
-        if (isDeath())
+    private void hurt(DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
+        if (isDeath() && this.witherDeathTime < MAX_WITHER_DEATH_TIME)
             cir.setReturnValue(false);
     }
 
@@ -240,8 +254,10 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
 
     @Override
     protected void tickDeath() {
-        this.level.broadcastEntityEvent(this, (byte) 60);
-        this.remove(RemovalReason.KILLED);
+        if (!this.level.isClientSide()) {
+            this.level.broadcastEntityEvent(this, (byte) 60);
+            this.remove(RemovalReason.KILLED);
+        }
     }
 
     @Override
