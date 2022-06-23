@@ -74,8 +74,15 @@ curseforge {
         apiKey = System.getenv('curesforgeapikey')
         project {
             id = "${rootProject.curesforge_id}"
-            changelogType = 'markdown'
-            changelog = file("../build/changelog/changelog.md")
+
+            def clf = file("../build/changelog/changelog.md");
+            if (clf.exists()) {
+                changelogType = 'markdown'
+                changelog = clf
+            } else {
+                changelog = '';
+            }
+
             releaseType = "${rootProject.release_type}"
             addGameVersion "${rootProject.minecraft_version}"
             addGameVersion 'Java 17'
