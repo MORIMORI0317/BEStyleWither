@@ -23,7 +23,6 @@ jobs:
         env:
           curesforgeapikey: ${{secrets.CURESFORGEAPIKEY}}
           modrinthapikey: ${{secrets.MODRINTH}}
-          mavenpassword: ${{secrets.MAVEN_PASSWORD}}
           githubtoken: ${{secrets.GITHUBTOKEN}}
       - name: Zip create
         run: |
