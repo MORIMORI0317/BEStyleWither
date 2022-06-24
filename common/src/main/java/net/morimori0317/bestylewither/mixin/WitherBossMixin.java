@@ -129,10 +129,11 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
                     if (soundevent != null)
                         this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
 
-                    hurt(lastDeathDamageSource, Float.MAX_VALUE);
+                    var dmg = lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource;
+                    hurt(dmg, Float.MAX_VALUE);
                     if (!isDeadOrDying()) {
                         setHealth(0);
-                        die(lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource);
+                        die(dmg);
                     }
                 }
             }
