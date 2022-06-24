@@ -120,11 +120,9 @@ if (System.getenv('modrinthapikey') != null && "${modrinth_id}" != '') {
         uploadFile = file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-${rootProject.minecraft_version}-${project.mod_version}.jar")
         gameVersions = ["1.18.2"]
         loaders = ["fabric", "quilt"]
+
         def clf = file("../build/changelog/changelog.md");
         if (clf.exists())
             changelog = clf.getText()
-        dependencies {
-            required.project "P7dR8mSH"
-        }
     }
 }
