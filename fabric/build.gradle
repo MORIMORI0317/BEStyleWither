@@ -89,6 +89,10 @@ curseforge {
             addGameVersion "Fabric"
             addGameVersion "Quilt"
 
+            relations {
+                requiredDependency "fabric-api"
+            }
+
             mainArtifact(file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-${rootProject.minecraft_version}-${project.mod_version}.jar")) {
                 displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Fabric"
             }
