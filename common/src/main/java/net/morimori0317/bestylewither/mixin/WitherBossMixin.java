@@ -10,6 +10,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.Monster;
@@ -22,9 +23,7 @@ import net.morimori0317.bestylewither.entity.goal.WitherChargeAttackGoal;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -55,6 +54,11 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
     @Shadow
     @Final
     private ServerBossEvent bossEvent;
+
+
+    @Shadow
+    public abstract void performRangedAttack(int i, double d, double e, double f, boolean bl);
+
     private static final EntityDataAccessor<Boolean> DATA_ID_FORCED_POWER = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_ID_DEATH = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.BOOLEAN);
 
@@ -62,9 +66,22 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
         super(entityType, level);
     }
 
-    @Redirect(method = "performRangedAttack(ILnet/minecraft/world/entity/LivingEntity;)V", at = @At(value = "INVOKE", target = "Ljava/util/Random;nextFloat()F", remap = false, ordinal = 0))
-    private float injected(Random instance) {
-        return 0f;
+    /*  @Redirect(method = "performRangedAttack(ILnet/minecraft/world/entity/LivingEntity;)V", at = @At(value = "INVOKE", target = "Ljava/util/Random;nextFloat()F", remap = false, ordinal = 0))
+      private float injected(Random instance) {
+          return 0f;
+      }
+  */
+    /*@ModifyConstant(method = "performRangedAttack(ILnet/minecraft/world/entity/LivingEntity;)V", constant = @Constant(floatValue = 0.001f))
+    private float performRangedAttack(float value) {
+        return 1f;
+    }*/
+
+    @Inject(method = "performRangedAttack(ILnet/minecraft/world/entity/LivingEntity;)V", at = @At("HEAD"), cancellable = true)
+    private void performRangedAttack(int i, LivingEntity livingEntity, CallbackInfo ci) {
+        if (i == 0) {
+            this.performRangedAttack(i, livingEntity.getX(), livingEntity.getY() + (double) livingEntity.getEyeHeight() * 0.5, livingEntity.getZ(), true);
+            ci.cancel();
+        }
     }
 
     @Inject(method = "isPowered", at = @At("RETURN"), cancellable = true)
