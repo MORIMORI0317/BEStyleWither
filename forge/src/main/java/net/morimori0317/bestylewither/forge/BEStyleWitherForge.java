@@ -9,7 +9,10 @@ import net.morimori0317.bestylewither.forge.networking.BSWPacketsForge;
 
 @Mod(BEStyleWither.MODID)
 public class BEStyleWitherForge {
+    public static final BESConfigForge CONFIG = new BESConfigForge();
+
     public BEStyleWitherForge() {
+        BESConfigForge.init();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
         BEStyleWither.init();
         BSWPacketsForge.init();

@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.entity.WitherBossRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.entity.BEWitherBoss;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,6 +24,9 @@ public class WitherBossRendererMixin {
 
     @Inject(method = "scale(Lnet/minecraft/world/entity/boss/wither/WitherBoss;Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At("HEAD"))
     private void scale(WitherBoss witherBoss, PoseStack poseStack, float f, CallbackInfo ci) {
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie())
+            return;
+
         float wd = ((BEWitherBoss) witherBoss).getWitherDeathTime(f);
         if (wd > 0) {
             float wd2 = wd + 2f;
@@ -39,6 +43,9 @@ public class WitherBossRendererMixin {
 
     @Inject(method = "getTextureLocation(Lnet/minecraft/world/entity/boss/wither/WitherBoss;)Lnet/minecraft/resources/ResourceLocation;", at = @At("RETURN"), cancellable = true)
     public void getTextureLocation(WitherBoss witherBoss, CallbackInfoReturnable<ResourceLocation> cir) {
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie())
+            return;
+
         int wd = ((BEWitherBoss) witherBoss).getWitherDeathTime();
         if (wd > 0)
             cir.setReturnValue(WITHER_INVULNERABLE_LOCATION);

@@ -6,6 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.morimori0317.bestylewither.config.BESConfig;
 import net.morimori0317.bestylewither.fabric.networking.BSWPacketsFabric;
 
 public class BSWExpectPlatformImpl {
@@ -26,5 +27,10 @@ public class BSWExpectPlatformImpl {
             buf.writeDouble(vec.z());
             ServerPlayNetworking.send(player, BSWPacketsFabric.WHITHER_SKULL_BOUNCE, buf);
         });
+    }
+
+
+    public static BESConfig getConfig() {
+        return net.morimori0317.bestylewither.fabric.BEStyleWitherFabric.getConfig();
     }
 }

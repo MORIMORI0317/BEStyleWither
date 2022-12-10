@@ -1,0 +1,12 @@
+{
+  "text.autoconfig.bestylewither.title": "BE Style Wither",
+  "text.autoconfig.bestylewither.option.enableBounceBlueWitherSkull": "青いウィザー頭蓋骨の跳ね返しを有効にする",
+  "text.autoconfig.bestylewither.option.enableMoreInertialBlueWitherSkull": "より慣性的な青いウィザー頭蓋骨を有効にする",
+  "text.autoconfig.bestylewither.option.enableShootMoreBlueWitherSkull": "青いウィザー頭蓋骨の撃つ頻度向上を有効にする",
+  "text.autoconfig.bestylewither.option.enableSpinAndWhiteSummon": "召喚時の回転と白色化を有効にする",
+  "text.autoconfig.bestylewither.option.enableExplodeByHalfHealth": "体力が半分以下になった時の爆発を有効にする",
+  "text.autoconfig.bestylewither.option.enableExplodeByDie": "死亡時の爆発を有効にする",
+  "text.autoconfig.bestylewither.option.enableChargeAttack": "突撃攻撃を有効にする",
+  "text.autoconfig.bestylewither.option.enableDoubleHealth": "体力二倍を有効にする",
+  "text.autoconfig.bestylewither.option.enableMaintainWeakenedState": "衰弱状態の維持を有効にする"
+}

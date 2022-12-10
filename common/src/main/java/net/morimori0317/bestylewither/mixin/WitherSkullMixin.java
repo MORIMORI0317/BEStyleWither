@@ -5,6 +5,7 @@ import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.projectile.WitherSkull;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.explatform.BSWExpectPlatform;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,18 +21,27 @@ public abstract class WitherSkullMixin {
 
     @Inject(method = "getInertia", at = @At("RETURN"), cancellable = true)
     private void getInertia(CallbackInfoReturnable<Float> cir) {
+        if (!BEStyleWither.getConfig().isEnableMoreInertialBlueWitherSkull())
+            return;
+
         if (isDangerous())
             cir.setReturnValue(0.90F);
     }
 
     @Inject(method = "isPickable", at = @At("RETURN"), cancellable = true)
     private void isPickable(CallbackInfoReturnable<Boolean> cir) {
+        if (!BEStyleWither.getConfig().isEnableBounceBlueWitherSkull())
+            return;
+
         if (isDangerous() && !cir.getReturnValue())
             cir.setReturnValue(true);
     }
 
     @Inject(method = "hurt", at = @At("RETURN"), cancellable = true)
     private void hurt(DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
+        if (!BEStyleWither.getConfig().isEnableBounceBlueWitherSkull())
+            return;
+
         if (isDangerous() && !cir.getReturnValue()) {
             WitherSkull ths = (WitherSkull) (Object) this;
             if (ths.isInvulnerableTo(damageSource))

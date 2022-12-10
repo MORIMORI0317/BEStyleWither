@@ -5,6 +5,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.entity.BEWitherBoss;
 import net.morimori0317.bestylewither.explatform.BSWExpectPlatform;
 
@@ -32,6 +33,9 @@ public class WitherChargeAttackGoal extends Goal {
     }
 
     public boolean canUse(boolean randed) {
+        if (!BEStyleWither.getConfig().isEnableChargeAttack())
+            return false;
+
         if (randed && mob.getRandom().nextInt(75) != 0)
             return false;
 

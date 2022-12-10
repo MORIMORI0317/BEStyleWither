@@ -10,6 +10,7 @@
     "client.WitherBossRendererMixin"
   ],
   "mixins": [
+    "AttributeSupplierBuilderAccessor",
     "EntityAccessor",
     "WitherBossMixin",
     "WitherSkullMixin"

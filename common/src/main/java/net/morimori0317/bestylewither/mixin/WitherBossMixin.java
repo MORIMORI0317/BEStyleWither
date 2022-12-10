@@ -12,22 +12,26 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.WitherSkeleton;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.phys.HitResult;
+import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.entity.BEWitherBoss;
 import net.morimori0317.bestylewither.entity.goal.WitherChargeAttackGoal;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.Random;
 
 @Mixin(WitherBoss.class)
 public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
@@ -55,9 +59,8 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
     @Final
     private ServerBossEvent bossEvent;
 
-
     @Shadow
-    public abstract void performRangedAttack(int i, double d, double e, double f, boolean bl);
+    protected abstract void performRangedAttack(int i, double d, double e, double f, boolean bl);
 
     private static final EntityDataAccessor<Boolean> DATA_ID_FORCED_POWER = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_ID_DEATH = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.BOOLEAN);
@@ -66,18 +69,21 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
         super(entityType, level);
     }
 
-    /*  @Redirect(method = "performRangedAttack(ILnet/minecraft/world/entity/LivingEntity;)V", at = @At(value = "INVOKE", target = "Ljava/util/Random;nextFloat()F", remap = false, ordinal = 0))
-      private float injected(Random instance) {
-          return 0f;
-      }
-  */
-    /*@ModifyConstant(method = "performRangedAttack(ILnet/minecraft/world/entity/LivingEntity;)V", constant = @Constant(floatValue = 0.001f))
-    private float performRangedAttack(float value) {
-        return 1f;
-    }*/
+    @Inject(method = "createAttributes", at = @At("RETURN"))
+    private static void createAttributes(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
+        if (BEStyleWither.getConfig().isEnableDoubleHealth()) {
+            var preBuilder = ((AttributeSupplierBuilderAccessor) cir.getReturnValue()).getBuilder();
+            var preMH = preBuilder.get(Attributes.MAX_HEALTH);
+            double preVal = preMH != null ? preMH.getBaseValue() : 300;
+            cir.getReturnValue().add(Attributes.MAX_HEALTH, preVal * 2d);
+        }
+    }
 
     @Inject(method = "performRangedAttack(ILnet/minecraft/world/entity/LivingEntity;)V", at = @At("HEAD"), cancellable = true)
     private void performRangedAttack(int i, LivingEntity livingEntity, CallbackInfo ci) {
+        if (!BEStyleWither.getConfig().isEnableShootMoreBlueWitherSkull())
+            return;
+
         if (i == 0) {
             this.performRangedAttack(i, livingEntity.getX(), livingEntity.getY() + (double) livingEntity.getEyeHeight() * 0.5, livingEntity.getZ(), true);
             ci.cancel();
@@ -86,7 +92,8 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
 
     @Inject(method = "isPowered", at = @At("RETURN"), cancellable = true)
     private void isPowered(CallbackInfoReturnable<Boolean> cir) {
-        if (isForcedPowered() || witherDeathTime > 0) cir.setReturnValue(isForcedPowered());
+        if ((BEStyleWither.getConfig().isEnableMaintainWeakenedState() && isForcedPowered()) || (BEStyleWither.getConfig().isEnableExplodeByDie() && witherDeathTime > 0))
+            cir.setReturnValue(true);
     }
 
     @Inject(method = "registerGoals", at = @At("TAIL"))
@@ -116,16 +123,18 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
 
     @Override
     public void baseTick() {
-        if (isDeath()) {
-            if (this.lastHurtByPlayerTime > 0) this.lastHurtByPlayerTime++;
+        if (BEStyleWither.getConfig().isEnableExplodeByDie() && isDeath()) {
+            if (this.lastHurtByPlayerTime > 0)
+                this.lastHurtByPlayerTime++;
         }
         super.baseTick();
     }
 
     @Inject(method = "aiStep", at = @At("HEAD"), cancellable = true)
     private void aiStepPre(CallbackInfo ci) {
-        if (isDeath()) {
-            if (this.witherDeathTime >= MAX_WITHER_DEATH_TIME) return;
+        if (BEStyleWither.getConfig().isEnableExplodeByDie() && isDeath()) {
+            if (this.witherDeathTime >= MAX_WITHER_DEATH_TIME)
+                return;
 
             this.setHealth(1.0F);
 
@@ -137,8 +146,7 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
                     setForcedPowered(random.nextInt((int) Math.max(5 - ((float) this.witherDeathTime / (20f * 10f) * 5f), 1)) == 0);
 
                 if (this.witherDeathTime == MAX_WITHER_DEATH_TIME && !isDeadOrDying()) {
-                    var interaction = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
-                    this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, interaction);
+                    this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, Level.ExplosionInteraction.MOB);
                     if (!this.isSilent())
                         this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
 
@@ -160,36 +168,61 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
 
     @Override
     public boolean isAlive() {
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie())
+            return super.isAlive();
+
         return super.isAlive() && !isDeath();
     }
 
     @Inject(method = "getDeathSound", at = @At("RETURN"), cancellable = true)
     private void getDeathSound(CallbackInfoReturnable<SoundEvent> cir) {
-        if (!isDeath()) cir.setReturnValue(null);
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie())
+            return;
+
+        if (!isDeath())
+            cir.setReturnValue(null);
     }
 
     @Override
     public void playAmbientSound() {
-        if (!isDeath()) super.playAmbientSound();
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie()) {
+            super.playAmbientSound();
+            return;
+        }
+
+        if (!isDeath())
+            super.playAmbientSound();
     }
 
     @Override
     public void tick() {
         super.tick();
-        this.witherDeathTimeOld = witherDeathTime;
 
-        if (getInvulnerableTicks() <= 0 && isPowered() && !isForcedPowered())
-            setDeltaMovement(getDeltaMovement().add(0, -0.7f, 0));
+        if (BEStyleWither.getConfig().isEnableExplodeByDie())
+            this.witherDeathTimeOld = witherDeathTime;
+
+        if (BEStyleWither.getConfig().isEnableExplodeByHalfHealth()) {
+            if (getInvulnerableTicks() <= 0 && isPowered() && !isForcedPowered())
+                setDeltaMovement(getDeltaMovement().add(0, -0.7f, 0));
+        }
     }
 
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     private void hurt(DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie())
+            return;
+
         if (isDeath() && this.witherDeathTime < MAX_WITHER_DEATH_TIME)
             cir.setReturnValue(false);
     }
 
     @Override
     public void die(DamageSource damageSource) {
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie()) {
+            super.die(damageSource);
+            return;
+        }
+
         if (isDeath()) {
             super.die(damageSource);
         } else {
@@ -201,14 +234,17 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
 
     @Inject(method = "aiStep", at = @At("TAIL"))
     private void aiStepPost(CallbackInfo ci) {
-        int it = getInvulnerableTicks();
-        if (it > 0) {
-            float par = 1f - ((float) it / 220f);
-            float angle = (60f * par) + 5f;
-            setYBodyRot(yBodyRot + angle);
-            setYHeadRot(getYHeadRot() + angle);
-            for (int i = 0; i < yRotHeads.length; i++) {
-                yRotHeads[i] = yRotHeads[i] + angle;
+
+        if (BEStyleWither.getConfig().isEnableSpinAndWhiteSummon()) {
+            int it = getInvulnerableTicks();
+            if (it > 0) {
+                float par = 1f - ((float) it / 220f);
+                float angle = (60f * par) + 5f;
+                setYBodyRot(yBodyRot + angle);
+                setYHeadRot(getYHeadRot() + angle);
+                for (int i = 0; i < yRotHeads.length; i++) {
+                    yRotHeads[i] = yRotHeads[i] + angle;
+                }
             }
         }
 
@@ -221,37 +257,45 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
 
     @Inject(method = "customServerAiStep", at = @At("TAIL"))
     private void customServerAiStep(CallbackInfo ci) {
+
         if (getInvulnerableTicks() <= 0 && isPowered() && !isForcedPowered()) {
-            var clip = level.clip(new ClipContext(position(), position().add(0, -30, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+            if (BEStyleWither.getConfig().isEnableExplodeByHalfHealth()) {
+                var clip = level.clip(new ClipContext(position(), position().add(0, -30, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
 
-            boolean flg = true;
-            boolean exFlg = false;
+                boolean flg = true;
+                boolean exFlg = false;
 
-            if (clip.getType() != HitResult.Type.MISS) {
-                flg = Math.sqrt(clip.distanceTo(this)) <= 1 || isOnGround() || isInWater() || isInWall();
-                exFlg = true;
-            }
+                if (clip.getType() != HitResult.Type.MISS) {
+                    flg = Math.sqrt(clip.distanceTo(this)) <= 1 || isOnGround() || isInWater() || isInWall();
+                    exFlg = true;
+                }
 
-            if (flg) {
-                setForcedPowered(true);
-                var interaction = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
-                this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 5.0F, false, interaction);
-                if (!this.isSilent())
-                    this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
+                if (flg) {
+                    setForcedPowered(true);
+                    this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 5.0F, false, Level.ExplosionInteraction.MOB);
 
-                if (exFlg && (this.level.getDifficulty() == Difficulty.NORMAL || this.level.getDifficulty() == Difficulty.HARD)) {
-                    int wc = 3;
-                    if (random.nextInt(8) == 0) wc = 4;
+                    if (!this.isSilent())
+                        this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
 
-                    for (int i = 0; i < wc; i++) {
-                        WitherSkeleton ws = new WitherSkeleton(EntityType.WITHER_SKELETON, level);
-                        ws.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                        ws.finalizeSpawn((ServerLevelAccessor) level, level.getCurrentDifficultyAt(blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
-                        level.addFreshEntity(ws);
+                    if (exFlg && (this.level.getDifficulty() == Difficulty.NORMAL || this.level.getDifficulty() == Difficulty.HARD)) {
+                        int wc = 3;
+                        if (random.nextInt(8) == 0) wc = 4;
+
+                        for (int i = 0; i < wc; i++) {
+                            WitherSkeleton ws = new WitherSkeleton(EntityType.WITHER_SKELETON, level);
+                            ws.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                            ws.finalizeSpawn((ServerLevelAccessor) level, level.getCurrentDifficultyAt(blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+                            level.addFreshEntity(ws);
+                        }
                     }
                 }
+
+            } else {
+                setForcedPowered(true);
             }
         }
+
+
     }
 
     private void setForcedPowered(boolean powered) {
@@ -272,6 +316,11 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
 
     @Override
     protected void tickDeath() {
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie()) {
+            super.tickDeath();
+            return;
+        }
+
         if (!this.level.isClientSide()) {
             this.level.broadcastEntityEvent(this, (byte) 60);
             this.remove(RemovalReason.KILLED);

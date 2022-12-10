@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PowerableMob;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.entity.BEWitherBoss;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,6 +32,9 @@ public abstract class EnergySwirlLayerMixin<T extends Entity & PowerableMob> {
 
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/Entity;FFFFFF)V", at = @At(value = "HEAD"), cancellable = true)
     private void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, T entity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie())
+            return;
+
         if (entity instanceof WitherBoss witherBoss && ((BEWitherBoss) witherBoss).getWitherDeathTime() > 0) {
             ci.cancel();
             float m = (float) entity.tickCount + h;

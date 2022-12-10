@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[41,)"
+loaderVersion = "[43,)"
 issueTrackerURL = "https://github.com/MORIMORI0317/BEStyleWither/issues"
 license = "GNU LGPLv3"
 
@@ -16,17 +16,3 @@ The ikisugi wither mod...
 logoFile = "icon.png"
 [modproperties.bestylewither]
 catalogueImageIcon = "icon.png"
-
-[[dependencies.bestylewither]]
-modId = "forge"
-mandatory = true
-versionRange = "[41,)"
-ordering = "NONE"
-side = "BOTH"
-
-[[dependencies.bestylewither]]
-modId = "minecraft"
-mandatory = true
-versionRange = "[1.19,)"
-ordering = "NONE"
-side = "BOTH"
