@@ -23,11 +23,10 @@ import net.morimori0317.bestylewither.entity.goal.WitherChargeAttackGoal;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.Random;
 
 @Mixin(WitherBoss.class)
 public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
@@ -125,7 +124,8 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
     @Inject(method = "aiStep", at = @At("HEAD"), cancellable = true)
     private void aiStepPre(CallbackInfo ci) {
         if (isDeath()) {
-            if (this.witherDeathTime >= MAX_WITHER_DEATH_TIME) return;
+            if (this.witherDeathTime >= MAX_WITHER_DEATH_TIME)
+                return;
 
             this.setHealth(1.0F);
 
@@ -136,22 +136,28 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
                 if (this.witherDeathTime % 4 == 0)
                     setForcedPowered(random.nextInt((int) Math.max(5 - ((float) this.witherDeathTime / (20f * 10f) * 5f), 1)) == 0);
 
-                if (this.witherDeathTime == MAX_WITHER_DEATH_TIME && !isDeadOrDying()) {
-                    var interaction = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
-                    this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, interaction);
-                    if (!this.isSilent())
-                        this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
+                if (!isDeadOrDying()) {
+                    if (this.witherDeathTime == MAX_WITHER_DEATH_TIME - 1) {
+                        var interaction = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
+                        this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, interaction);
+                        if (!this.isSilent())
+                            this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
 
-                    SoundEvent soundevent = this.getDeathSound();
-                    if (soundevent != null)
-                        this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
+                        SoundEvent soundevent = this.getDeathSound();
+                        if (soundevent != null)
+                            this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
 
-                    var dmg = lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource;
-                    hurt(dmg, Float.MAX_VALUE);
-                    if (!isDeadOrDying()) {
-                        setHealth(0);
-                        die(dmg);
+                    } else if (this.witherDeathTime == MAX_WITHER_DEATH_TIME) {
+
+                        var dmg = lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource;
+                        hurt(dmg, Float.MAX_VALUE);
+                        if (!isDeadOrDying()) {
+                            setHealth(0);
+                            die(dmg);
+                        }
+
                     }
+
                 }
             }
             ci.cancel();
