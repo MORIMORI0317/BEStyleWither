@@ -25,6 +25,7 @@ import net.minecraft.world.phys.HitResult;
 import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.entity.BEWitherBoss;
 import net.morimori0317.bestylewither.entity.goal.WitherChargeAttackGoal;
+import org.intellij.lang.annotations.Language;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -145,21 +146,28 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
                 if (this.witherDeathTime % 4 == 0)
                     setForcedPowered(random.nextInt((int) Math.max(5 - ((float) this.witherDeathTime / (20f * 10f) * 5f), 1)) == 0);
 
-                if (this.witherDeathTime == MAX_WITHER_DEATH_TIME && !isDeadOrDying()) {
-                    this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, Level.ExplosionInteraction.MOB);
-                    if (!this.isSilent())
-                        this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
+                if (!isDeadOrDying()) {
 
-                    SoundEvent soundevent = this.getDeathSound();
-                    if (soundevent != null)
-                        this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
+                    if (this.witherDeathTime == MAX_WITHER_DEATH_TIME - 1) {
+                        this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, Level.ExplosionInteraction.MOB);
+                        if (!this.isSilent())
+                            this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
 
-                    var dmg = lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource;
-                    hurt(dmg, Float.MAX_VALUE);
-                    if (!isDeadOrDying()) {
-                        setHealth(0);
-                        die(dmg);
+                        SoundEvent soundevent = this.getDeathSound();
+                        if (soundevent != null)
+                            this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
+
+                    } else if (this.witherDeathTime == MAX_WITHER_DEATH_TIME) {
+
+                        var dmg = lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource;
+                        hurt(dmg, Float.MAX_VALUE);
+                        if (!isDeadOrDying()) {
+                            setHealth(0);
+                            die(dmg);
+                        }
+
                     }
+
                 }
             }
             ci.cancel();

@@ -81,7 +81,8 @@ curseforge {
         project {
             id = "${rootProject.curesforge_id}"
 
-            changelog = '';
+            changelogType = 'markdown'
+            changelog = file('../LATEST_CHANGELOG.md')
 
             releaseType = "${rootProject.release_type}"
             addGameVersion "${rootProject.minecraft_version}"
@@ -114,20 +115,6 @@ curseforge {
         forgeGradleIntegration = false
     }
 }
-
-if (System.getenv('modrinthapikey') != null && "${modrinth_id}" != '') {
-    modrinth {
-        token = System.getenv('modrinthapikey')
-        projectId = "${rootProject.modrinth_id}"
-        versionName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Fabric"
-        versionNumber = "${rootProject.minecraft_version}-${project.mod_version}-Fabric"
-        versionType = "${project.release_type}"
-        uploadFile = file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}.jar")
-        gameVersions = List.of(project.support_versions.split(","))
-        loaders = ["fabric", "quilt"]
-    }
-}
-
 if (System.getenv('modrinthapikey') != null && "${modrinth_id}" != '') {
     modrinth {
         token = System.getenv('modrinthapikey')
@@ -142,5 +129,6 @@ if (System.getenv('modrinthapikey') != null && "${modrinth_id}" != '') {
             required.project("P7dR8mSH")//Fabric API
             optional.project("9s6osm5g")//Cloth Config API
         }
+        changelog = file('../LATEST_CHANGELOG.md').text
     }
 }
