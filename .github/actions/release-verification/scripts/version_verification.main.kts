@@ -144,9 +144,11 @@ if (allSemVer.isNotEmpty()) {
         }
     }
 
-    // if (compVer.none { toVersionOnly(it) == toVersionOnly(preDictPreVer) })
-    if (compVer.map { Semver(toVersionOnly(it)) }.distinct().none { it.isGreaterThanOrEqualTo(preDictPreVer) && it.isLowerThan(version) })
+    val compVo = compVer.map { Semver(toVersionOnly(it)) }.distinct()
+
+    if (compVo.any { it.isLowerThan(preDictPreVer) } && compVo.none { it.isGreaterThanOrEqualTo(preDictPreVer) && it.isLowerThan(version) })
         throw Exception("Pre version does not exist/以前のバージョンが存在しません: $preDictPreVer")
+
 } else {
     println("First version")
 }
