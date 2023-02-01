@@ -28,9 +28,9 @@ public abstract class EnergySwirlLayerMixin<T extends Entity & PowerableMob> {
     @Shadow
     protected abstract float xOffset(float f);
 
-
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/Entity;FFFFFF)V", at = @At(value = "HEAD"), cancellable = true)
     private void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, T entity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
+
         if (entity instanceof WitherBoss witherBoss && ((BEWitherBoss) witherBoss).getWitherDeathTime() > 0) {
             ci.cancel();
             float m = (float) entity.tickCount + h;
@@ -40,5 +40,6 @@ public abstract class EnergySwirlLayerMixin<T extends Entity & PowerableMob> {
             entityModel.setupAnim(entity, f, g, j, k, l);
             entityModel.renderToBuffer(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, 0.5F, 0.5F, 0.5F, 1.0F);
         }
+
     }
 }

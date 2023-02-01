@@ -14,7 +14,7 @@ Changelog to track updates for this mod.
 ### Removed
 
 ### Fixed
-
+- Fixed wither death handling that could cause issues with other mods [#4](https://github.com/MORIMORI0317/BEStyleWither/issues/4)
 ### Security
 
 ## [1.3.1] - 2023-01-24
