@@ -1,7 +1,9 @@
 package net.morimori0317.bestylewither.mixin.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
@@ -10,6 +12,7 @@ import net.morimori0317.bestylewither.entity.BEWitherBoss;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntityRenderer.class)
@@ -31,5 +34,17 @@ public class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityM
                     cir.setReturnValue(Mth.clamp(wd, 0f, 1f));
             }
         }
+    }
+
+    @Inject(method = "setupRotations", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;sqrt(F)F", ordinal = 0), cancellable = true)
+    private void setupRotations(T livingEntity, PoseStack poseStack, float f, float g, float h, CallbackInfo ci) {
+        if (BEStyleWither.getConfig().isEnableExplodeByDie() && livingEntity instanceof WitherBoss)
+            ci.cancel();
+    }
+
+    @Inject(method = "getOverlayCoords", at = @At("HEAD"), cancellable = true)
+    private static void getOverlayCoords(LivingEntity livingEntity, float f, CallbackInfoReturnable<Integer> cir) {
+        if (BEStyleWither.getConfig().isEnableExplodeByDie() && livingEntity instanceof WitherBoss)
+            cir.setReturnValue(OverlayTexture.pack(OverlayTexture.u(f), OverlayTexture.v(livingEntity.hurtTime > 0)));
     }
 }

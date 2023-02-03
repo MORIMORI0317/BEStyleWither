@@ -25,10 +25,10 @@ import net.minecraft.world.phys.HitResult;
 import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.entity.BEWitherBoss;
 import net.morimori0317.bestylewither.entity.goal.WitherChargeAttackGoal;
-import org.intellij.lang.annotations.Language;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -36,13 +36,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(WitherBoss.class)
 public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
+    @Unique
     private static final int MAX_WITHER_DEATH_TIME = 20 * 10;
-    private int witherDeathTime;
-    private int witherDeathTimeOld;
+    @Unique
     private int chargeTickCoolDown;
+    @Unique
     private int clientChargeTick;
+    @Unique
     private int clientChargeTickOld;
+    @Unique
     private DamageSource lastDeathDamageSource;
+    @Unique
+    private boolean dropLootSkip;
 
     @Shadow
     public abstract int getInvulnerableTicks();
@@ -56,19 +61,15 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
 
     @Shadow
     private int destroyBlocksTick;
-    @Shadow
-    @Final
-    private ServerBossEvent bossEvent;
 
     @Shadow
     protected abstract void performRangedAttack(int i, double d, double e, double f, boolean bl);
 
+    @Shadow
+    @Final
+    private ServerBossEvent bossEvent;
+    @Unique
     private static final EntityDataAccessor<Boolean> DATA_ID_FORCED_POWER = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Boolean> DATA_ID_DEATH = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.BOOLEAN);
-
-    protected WitherBossMixin(EntityType<? extends Monster> entityType, Level level) {
-        super(entityType, level);
-    }
 
     @Inject(method = "createAttributes", at = @At("RETURN"))
     private static void createAttributes(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
@@ -78,6 +79,10 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
             double preVal = preMH != null ? preMH.getBaseValue() : 300;
             cir.getReturnValue().add(Attributes.MAX_HEALTH, preVal * 2d);
         }
+    }
+
+    protected WitherBossMixin(EntityType<? extends Monster> entityType, Level level) {
+        super(entityType, level);
     }
 
     @Inject(method = "performRangedAttack(ILnet/minecraft/world/entity/LivingEntity;)V", at = @At("HEAD"), cancellable = true)
@@ -93,7 +98,7 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
 
     @Inject(method = "isPowered", at = @At("RETURN"), cancellable = true)
     private void isPowered(CallbackInfoReturnable<Boolean> cir) {
-        if ((BEStyleWither.getConfig().isEnableMaintainWeakenedState() && isForcedPowered()) || (BEStyleWither.getConfig().isEnableExplodeByDie() && witherDeathTime > 0))
+        if ((BEStyleWither.getConfig().isEnableMaintainWeakenedState() && isForcedPowered()) || (BEStyleWither.getConfig().isEnableExplodeByDie() && deathTime > 0))
             cir.setReturnValue(true);
     }
 
@@ -105,81 +110,22 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
     @Inject(method = "defineSynchedData", at = @At("TAIL"))
     private void defineSynchedData(CallbackInfo ci) {
         this.entityData.define(DATA_ID_FORCED_POWER, false);
-        this.entityData.define(DATA_ID_DEATH, false);
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
     private void addAdditionalSaveData(CompoundTag compoundTag, CallbackInfo ci) {
         compoundTag.putBoolean("FPower", isForcedPowered());
-        compoundTag.putShort("WitherDeathTime", (short) this.witherDeathTime);
-        compoundTag.putBoolean("WitherDeath", isDeath());
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     private void readAdditionalSaveData(CompoundTag compoundTag, CallbackInfo ci) {
         setForcedPowered(compoundTag.getBoolean("FPower"));
-        this.witherDeathTime = compoundTag.getShort("WitherDeathTime");
-        setDeath(compoundTag.getBoolean("WitherDeath"));
-    }
-
-    @Override
-    public void baseTick() {
-        if (BEStyleWither.getConfig().isEnableExplodeByDie() && isDeath()) {
-            if (this.lastHurtByPlayerTime > 0)
-                this.lastHurtByPlayerTime++;
-        }
-        super.baseTick();
     }
 
     @Inject(method = "aiStep", at = @At("HEAD"), cancellable = true)
     private void aiStepPre(CallbackInfo ci) {
-        if (BEStyleWither.getConfig().isEnableExplodeByDie() && isDeath()) {
-            if (this.witherDeathTime >= MAX_WITHER_DEATH_TIME)
-                return;
-
-            this.setHealth(1.0F);
-
-            this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
-            this.witherDeathTime++;
-
-            if (!this.level.isClientSide()) {
-                if (this.witherDeathTime % 4 == 0)
-                    setForcedPowered(random.nextInt((int) Math.max(5 - ((float) this.witherDeathTime / (20f * 10f) * 5f), 1)) == 0);
-
-                if (!isDeadOrDying()) {
-
-                    if (this.witherDeathTime == MAX_WITHER_DEATH_TIME - 1) {
-                        this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, Level.ExplosionInteraction.MOB);
-                        if (!this.isSilent())
-                            this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
-
-                        SoundEvent soundevent = this.getDeathSound();
-                        if (soundevent != null)
-                            this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
-
-                    } else if (this.witherDeathTime == MAX_WITHER_DEATH_TIME) {
-
-                        var dmg = lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource;
-                        hurt(dmg, Float.MAX_VALUE);
-                        if (!isDeadOrDying()) {
-                            setHealth(0);
-                            die(dmg);
-                        }
-
-                    }
-
-                }
-            }
+        if (BEStyleWither.getConfig().isEnableExplodeByDie() && isDeadOrDying())
             ci.cancel();
-        }
-    }
-
-    @Override
-    public boolean isAlive() {
-        if (!BEStyleWither.getConfig().isEnableExplodeByDie())
-            return super.isAlive();
-
-        return super.isAlive() && !isDeath();
     }
 
     @Inject(method = "getDeathSound", at = @At("RETURN"), cancellable = true)
@@ -187,7 +133,7 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
         if (!BEStyleWither.getConfig().isEnableExplodeByDie())
             return;
 
-        if (!isDeath())
+        if (deathTime <= 0)
             cir.setReturnValue(null);
     }
 
@@ -198,7 +144,7 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
             return;
         }
 
-        if (!isDeath())
+        if (isAlive())
             super.playAmbientSound();
     }
 
@@ -206,22 +152,8 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
     public void tick() {
         super.tick();
 
-        if (BEStyleWither.getConfig().isEnableExplodeByDie())
-            this.witherDeathTimeOld = witherDeathTime;
-
-        if (BEStyleWither.getConfig().isEnableExplodeByHalfHealth()) {
-            if (getInvulnerableTicks() <= 0 && isPowered() && !isForcedPowered())
-                setDeltaMovement(getDeltaMovement().add(0, -0.7f, 0));
-        }
-    }
-
-    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void hurt(DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
-        if (!BEStyleWither.getConfig().isEnableExplodeByDie())
-            return;
-
-        if (isDeath() && this.witherDeathTime < MAX_WITHER_DEATH_TIME)
-            cir.setReturnValue(false);
+        if (BEStyleWither.getConfig().isEnableExplodeByHalfHealth() && getInvulnerableTicks() <= 0 && isPowered() && !isForcedPowered())
+            setDeltaMovement(getDeltaMovement().add(0, -0.7f, 0));
     }
 
     @Override
@@ -231,18 +163,22 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
             return;
         }
 
-        if (isDeath()) {
-            super.die(damageSource);
-        } else {
+        dropLootSkip = true;
+        super.die(damageSource);
+        dropLootSkip = false;
+
+        if (this.isDeadOrDying())
             lastDeathDamageSource = damageSource;
-            this.setHealth(1.0F);
-            setDeath(true);
-        }
+    }
+
+    @Override
+    protected void dropAllDeathLoot(DamageSource damageSource) {
+        if (!dropLootSkip)
+            super.dropAllDeathLoot(damageSource);
     }
 
     @Inject(method = "aiStep", at = @At("TAIL"))
     private void aiStepPost(CallbackInfo ci) {
-
         if (BEStyleWither.getConfig().isEnableSpinAndWhiteSummon()) {
             int it = getInvulnerableTicks();
             if (it > 0) {
@@ -265,7 +201,6 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
 
     @Inject(method = "customServerAiStep", at = @At("TAIL"))
     private void customServerAiStep(CallbackInfo ci) {
-
         if (getInvulnerableTicks() <= 0 && isPowered() && !isForcedPowered()) {
             if (BEStyleWither.getConfig().isEnableExplodeByHalfHealth()) {
                 var clip = level.clip(new ClipContext(position(), position().add(0, -30, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
@@ -302,8 +237,6 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
                 setForcedPowered(true);
             }
         }
-
-
     }
 
     private void setForcedPowered(boolean powered) {
@@ -314,14 +247,6 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
         return this.entityData.get(DATA_ID_FORCED_POWER);
     }
 
-    private void setDeath(boolean death) {
-        this.entityData.set(DATA_ID_DEATH, death);
-    }
-
-    private boolean isDeath() {
-        return this.entityData.get(DATA_ID_DEATH);
-    }
-
     @Override
     protected void tickDeath() {
         if (!BEStyleWither.getConfig().isEnableExplodeByDie()) {
@@ -329,20 +254,40 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
             return;
         }
 
+        deathTime++;
+        bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
+
+        if (this.deathTime % 4 == 0)
+            setForcedPowered(random.nextInt((int) Math.max(5 - ((float) this.deathTime / (20f * 10f) * 5f), 1)) == 0);
+
         if (!this.level.isClientSide()) {
-            this.level.broadcastEntityEvent(this, (byte) 60);
-            this.remove(RemovalReason.KILLED);
+            if (this.deathTime == MAX_WITHER_DEATH_TIME - 1) {
+                this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, Level.ExplosionInteraction.MOB);
+                if (!this.isSilent())
+                    this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
+
+                SoundEvent soundevent = this.getDeathSound();
+                if (soundevent != null)
+                    this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
+            } else if (this.deathTime == MAX_WITHER_DEATH_TIME) {
+                this.lastHurtByPlayerTime = Math.max(lastHurtByPlayerTime, 1);
+                var dmg = lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource;
+                dropAllDeathLoot(dmg);
+
+                this.level.broadcastEntityEvent(this, (byte) 60);
+                this.remove(RemovalReason.KILLED);
+            }
         }
     }
 
     @Override
     public int getWitherDeathTime() {
-        return witherDeathTime;
+        return deathTime;
     }
 
     @Override
     public float getWitherDeathTime(float delta) {
-        return Mth.lerp(delta, (float) this.witherDeathTimeOld, (float) this.witherDeathTime) / (float) (30 - 2);
+        return (deathTime + delta - 1.0F) / (float) (30 - 2);
     }
 
     @Override

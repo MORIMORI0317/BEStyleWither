@@ -7,71 +7,14 @@ on:
 
 jobs:
   release:
-    name: Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+    uses: TeamFelnull/actions-reusable-workflows/.github/workflows/mcmod-release.yml@master
+    with:
+      build_tasks: "build curseforge modrinth"
+    secrets:
+      curseforge_token: ${{ secrets.CURESFORGEAPIKEY }}
+      modrinth_token: ${{ secrets.MODRINTH }}
 
-      - name: Setup
-        uses: ./.github/actions/setup
-
-      - name: Verification
-        uses: ./.github/actions/release-verification
-        with:
-          curseforge-token: ${{ secrets.CURESFORGEAPIKEY }}
-          modrinth-token: ${{ secrets.MODRINTH }}
-
-      - name: Generate Changelog
-        shell: bash
-        run: |
-          ./gradlew patchChangelog
-          ./gradlew getChangelog --console=plain -q --no-header --no-summary --no-links > LATEST_CHANGELOG.md
-
-      - name: Build And Release
-        shell: bash
-        run: |
-          ./gradlew build curseforge modrinth --stacktrace --no-daemon
-        env:
-          curesforgeapikey: ${{ secrets.CURESFORGEAPIKEY }}
-          modrinthapikey:  ${{ secrets.MODRINTH }}
-
-      - name: Collect Releases
-        shell: bash
-        run: |
-          mkdir release
-          cd release
-          cp -r ../fabric/build/libs/. ./
-          cp -r ../forge/build/libs/. ./
-          ls
-          echo "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: releases
-          path: release/*
-
-      - name: GitHub Releases
-        uses: softprops/action-gh-release@v1
-        with:
-          body_path: LATEST_CHANGELOG.md
-          files: release/*
-  
   postRelease:
     name: Update after release
     needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup
-        uses: ./.github/actions/setup
-
-      - name: Update Changelog and Version Check
-        uses: ./.github/actions/update-changelog-versioncheck
+    uses: TeamFelnull/actions-reusable-workflows/.github/workflows/mcmod-post-release.yml@master

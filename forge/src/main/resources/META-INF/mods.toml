@@ -8,6 +8,7 @@ modId = "bestylewither"
 version = "${version}"
 displayName = "BE Style Wither"
 displayURL = "https://www.curseforge.com/minecraft/mc-mods/be-style-wither"
+updateJSONURL = "https://raw.githubusercontent.com/MORIMORI0317/BEStyleWither/main/version_check.json"
 authors = "MORIMORI0317"
 description = '''
 This mod brings the behavior of Wither closer to Bedrock Edition.
