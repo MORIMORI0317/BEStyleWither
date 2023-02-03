@@ -1,10 +1,11 @@
 {
   "homepage": "https://github.com/MORIMORI0317/BEStyleWither/releases",
   "1.19.3": {
-    "1.4.1": "Fixed\n- Fixed a bug that could occur with the Wither killing explosion\n"
+    "1.4.1": "Fixed\n- Fixed a bug that could occur with the Wither killing explosion\n",
+    "1.4.2": "Fixed\n- Fixed wither death handling that could cause issues with other\n  mods [#4](https://github.com/MORIMORI0317/BEStyleWither/issues/4)\n"
   },
   "promos": {
-    "1.19.3-latest": "1.4.1",
-    "1.19.3-recommended": "1.4.1"
+    "1.19.3-latest": "1.4.2",
+    "1.19.3-recommended": "1.4.2"
   }
 }
