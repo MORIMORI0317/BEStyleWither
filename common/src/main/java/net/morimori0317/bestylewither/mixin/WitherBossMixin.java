@@ -271,7 +271,7 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
                     this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
             } else if (this.deathTime == MAX_WITHER_DEATH_TIME) {
                 this.lastHurtByPlayerTime = Math.max(lastHurtByPlayerTime, 1);
-                var dmg = lastDeathDamageSource == null ? DamageSource.OUT_OF_WORLD : lastDeathDamageSource;
+                var dmg = lastDeathDamageSource == null ? level.damageSources().outOfWorld() : lastDeathDamageSource;
                 dropAllDeathLoot(dmg);
 
                 this.level.broadcastEntityEvent(this, (byte) 60);

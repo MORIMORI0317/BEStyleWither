@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
+loaderVersion = "[45,)"
 issueTrackerURL = "https://github.com/MORIMORI0317/BEStyleWither/issues"
 license = "GNU LGPLv3"
 
@@ -15,5 +15,13 @@ This mod brings the behavior of Wither closer to Bedrock Edition.
 The ikisugi wither mod...
 '''
 logoFile = "icon.png"
+
 [modproperties.bestylewither]
 catalogueImageIcon = "icon.png"
+
+[[dependencies.bestylewither]]
+modId = "forge"
+mandatory = true
+versionRange = "[45,)"
+ordering = "NONE"
+side = "BOTH"
