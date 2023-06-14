@@ -193,7 +193,7 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
         }
 
         setChargeCoolDown(Math.max(0, getChargeCoolDown() - 1));
-        if (level.isClientSide()) {
+        if (level().isClientSide()) {
             clientChargeTickOld = clientChargeTick;
             clientChargeTick = Math.max(0, clientChargeTick - 1);
         }
@@ -203,32 +203,32 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
     private void customServerAiStep(CallbackInfo ci) {
         if (getInvulnerableTicks() <= 0 && isPowered() && !isForcedPowered()) {
             if (BEStyleWither.getConfig().isEnableExplodeByHalfHealth()) {
-                var clip = level.clip(new ClipContext(position(), position().add(0, -30, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+                var clip = level().clip(new ClipContext(position(), position().add(0, -30, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
 
                 boolean flg = true;
                 boolean exFlg = false;
 
                 if (clip.getType() != HitResult.Type.MISS) {
-                    flg = Math.sqrt(clip.distanceTo(this)) <= 1 || isOnGround() || isInWater() || isInWall();
+                    flg = Math.sqrt(clip.distanceTo(this)) <= 1 || onGround() || isInWater() || isInWall();
                     exFlg = true;
                 }
 
                 if (flg) {
                     setForcedPowered(true);
-                    this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 5.0F, false, Level.ExplosionInteraction.MOB);
+                    this.level().explode(this, this.getX(), this.getEyeY(), this.getZ(), 5.0F, false, Level.ExplosionInteraction.MOB);
 
                     if (!this.isSilent())
-                        this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
+                        this.level().globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
 
-                    if (exFlg && (this.level.getDifficulty() == Difficulty.NORMAL || this.level.getDifficulty() == Difficulty.HARD)) {
+                    if (exFlg && (this.level().getDifficulty() == Difficulty.NORMAL || this.level().getDifficulty() == Difficulty.HARD)) {
                         int wc = 3;
                         if (random.nextInt(8) == 0) wc = 4;
 
                         for (int i = 0; i < wc; i++) {
-                            WitherSkeleton ws = new WitherSkeleton(EntityType.WITHER_SKELETON, level);
+                            WitherSkeleton ws = new WitherSkeleton(EntityType.WITHER_SKELETON, level());
                             ws.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                            ws.finalizeSpawn((ServerLevelAccessor) level, level.getCurrentDifficultyAt(blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
-                            level.addFreshEntity(ws);
+                            ws.finalizeSpawn((ServerLevelAccessor) level(), level().getCurrentDifficultyAt(blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+                            level().addFreshEntity(ws);
                         }
                     }
                 }
@@ -260,21 +260,21 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
         if (this.deathTime % 4 == 0)
             setForcedPowered(random.nextInt((int) Math.max(5 - ((float) this.deathTime / (20f * 10f) * 5f), 1)) == 0);
 
-        if (!this.level.isClientSide()) {
+        if (!this.level().isClientSide()) {
             if (this.deathTime == MAX_WITHER_DEATH_TIME - 1) {
-                this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, Level.ExplosionInteraction.MOB);
+                this.level().explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, Level.ExplosionInteraction.MOB);
                 if (!this.isSilent())
-                    this.level.globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
+                    this.level().globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
 
                 SoundEvent soundevent = this.getDeathSound();
                 if (soundevent != null)
                     this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
             } else if (this.deathTime == MAX_WITHER_DEATH_TIME) {
                 this.lastHurtByPlayerTime = Math.max(lastHurtByPlayerTime, 1);
-                var dmg = lastDeathDamageSource == null ? level.damageSources().outOfWorld() : lastDeathDamageSource;
+                var dmg = lastDeathDamageSource == null ? level().damageSources().fellOutOfWorld() : lastDeathDamageSource;
                 dropAllDeathLoot(dmg);
 
-                this.level.broadcastEntityEvent(this, (byte) 60);
+                this.level().broadcastEntityEvent(this, (byte) 60);
                 this.remove(RemovalReason.KILLED);
             }
         }

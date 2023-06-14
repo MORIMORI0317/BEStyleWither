@@ -8,8 +8,8 @@ import net.minecraft.world.phys.Vec3;
 import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.entity.BEWitherBoss;
 import net.morimori0317.bestylewither.explatform.BSWExpectPlatform;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.EnumSet;
 
 public class WitherChargeAttackGoal extends Goal {
@@ -52,8 +52,8 @@ public class WitherChargeAttackGoal extends Goal {
     @Override
     public void start() {
 
-        if (!mob.level.isClientSide()) {
-            LevelChunk lch = (LevelChunk) mob.level.getChunk(mob.blockPosition());
+        if (!mob.level().isClientSide()) {
+            LevelChunk lch = (LevelChunk) mob.level().getChunk(mob.blockPosition());
             BSWExpectPlatform.sendWhitherChargePacket(lch, mob.getId());
         }
 

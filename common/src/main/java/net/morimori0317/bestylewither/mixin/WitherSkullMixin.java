@@ -51,7 +51,7 @@ public abstract class WitherSkullMixin {
             var entity = damageSource.getEntity();
 
             if (entity != null && !(entity instanceof WitherBoss) && !(damageSource.getDirectEntity() instanceof WitherSkull)) {
-                if (!ths.level.isClientSide) {
+                if (!ths.level().isClientSide) {
                     Vec3 vec3 = entity.getLookAngle();
                     ths.setDeltaMovement(vec3);
                     ths.xPower = vec3.x * 0.1;
@@ -59,7 +59,7 @@ public abstract class WitherSkullMixin {
                     ths.zPower = vec3.z * 0.1;
                     ths.setOwner(entity);
 
-                    LevelChunk lch = (LevelChunk) ths.level.getChunk(ths.blockPosition());
+                    LevelChunk lch = (LevelChunk) ths.level().getChunk(ths.blockPosition());
                     BSWExpectPlatform.sendWhitherSkullBouncePacket(lch, ths.getId(), vec3);
                 }
                 cir.setReturnValue(true);
