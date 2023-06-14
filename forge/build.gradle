@@ -78,37 +78,41 @@ curseforge {
     if (System.getenv('curesforgeapikey') != null && "${project.curesforge_id}" != '') {
         apiKey = System.getenv('curesforgeapikey')
         project {
-            id = "${project.curesforge_id}"
+            id = "${rootProject.curesforge_id}"
 
             changelogType = 'markdown'
-            changelog = file('./LATEST_CHANGELOG.md')
+            changelog = file('../LATEST_CHANGELOG.md')
 
-            releaseType = "${project.release_type}"
-            addGameVersion "${project.minecraft_version}"
+            releaseType = "${rootProject.release_type}"
+            addGameVersion "${rootProject.minecraft_version}"
             addGameVersion 'Java 17'
+            addGameVersion "Forge"
 
-            mainArtifact(file("${project.buildDir}/libs/${project.mod_id}-mc${project.minecraft_version}-${project.mod_version}.jar")) {
-                displayName = "${project.name}-${project.minecraft_version}-${project.mod_version}"
+            project.support_versions.split(",").each {
+                String version -> addGameVersion version
             }
 
-            addArtifact(file("${project.buildDir}/libs/${project.mod_id}-mc${project.minecraft_version}-${project.mod_version}-sources.jar")) {
-                displayName = "${project.name}-${project.minecraft_version}-${project.mod_version}-sources"
+            mainArtifact(file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}.jar")) {
+                displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Forge"
+            }
+
+            addArtifact(file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}-sources.jar")) {
+                displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Forge-sources"
             }
         }
     }
 }
 
-
 if (System.getenv('modrinthapikey') != null && "${modrinth_id}" != '') {
     modrinth {
         token = System.getenv('modrinthapikey')
-        projectId = rootProject.modrinth_id
-        versionName = "${project.mod_name}-${project.minecraft_version}-${project.mod_version}"
-        versionNumber = "${project.minecraft_version}-${project.mod_version}"
-        versionType = project.release_type
-        uploadFile = file("${project.buildDir}/libs/${project.mod_id}-mc${project.minecraft_version}-${project.mod_version}.jar")
+        projectId = "${rootProject.modrinth_id}"
+        versionName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Forge"
+        versionNumber = "${rootProject.minecraft_version}-${project.mod_version}-Forge"
+        versionType = "${project.release_type}"
+        uploadFile = file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}.jar")
         gameVersions = List.of(project.support_versions.split(","))
         loaders = ["forge"]
-        changelog = file('./LATEST_CHANGELOG.md').text
+        changelog = file('../LATEST_CHANGELOG.md').text
     }
 }
