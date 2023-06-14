@@ -8,7 +8,7 @@ Changelog to track updates for this mod.
 ### Added
 
 ### Changed
-- Port MC1.20
+
 ### Deprecated
 
 ### Removed
@@ -16,6 +16,11 @@ Changelog to track updates for this mod.
 ### Fixed
 
 ### Security
+
+## [1.6.0] - 2023-06-14
+
+### Changed
+- Port MC1.20
 
 ## [1.5.0] - 2023-03-25
 
@@ -33,7 +38,8 @@ Changelog to track updates for this mod.
 ### Fixed
 - Fixed a bug that could occur with the Wither killing explosion
 
-[Unreleased]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.4.2...v1.5.0
 [1.4.2]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/MORIMORI0317/BEStyleWither/commits/v1.4.1
