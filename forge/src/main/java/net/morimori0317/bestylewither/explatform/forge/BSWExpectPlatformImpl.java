@@ -9,11 +9,11 @@ import net.morimori0317.bestylewither.forge.networking.BSWPacketsForge;
 
 public class BSWExpectPlatformImpl {
     public static void sendWhitherSkullBouncePacket(LevelChunk chunk, int entityId, Vec3 vec) {
-        BSWPacketsForge.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), new BSWPacketsForge.WhitherSkullBounceMessage(entityId, vec));
+        BSWPacketsForge.INSTANCE.send(new BSWPacketsForge.WhitherSkullBounceMessage(entityId, vec), PacketDistributor.TRACKING_CHUNK.with(chunk));
     }
 
     public static void sendWhitherChargePacket(LevelChunk chunk, int entityId) {
-        BSWPacketsForge.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), new BSWPacketsForge.WhitherChargeMessage(entityId));
+        BSWPacketsForge.INSTANCE.send(new BSWPacketsForge.WhitherChargeMessage(entityId), PacketDistributor.TRACKING_CHUNK.with(chunk));
     }
 
     public static BESConfig getConfig() {

@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[48,)"
+loaderVersion = "[1,)"
 issueTrackerURL = "https://github.com/MORIMORI0317/BEStyleWither/issues"
 license = "GNU LGPLv3"
 
@@ -8,7 +8,7 @@ modId = "bestylewither"
 version = "${version}"
 displayName = "BE Style Wither"
 displayURL = "https://www.curseforge.com/minecraft/mc-mods/be-style-wither"
-updateJSONURL = "https://raw.githubusercontent.com/MORIMORI0317/BEStyleWither/main/version_check.json"
+updateJSONURL = "https://raw.githubusercontent.com/MORIMORI0317/BEStyleWither/main/neoforge_version_check.json"
 authors = "MORIMORI0317"
 description = '''
 This mod brings the behavior of Wither closer to Bedrock Edition.
@@ -16,13 +16,10 @@ The ikisugi wither mod...
 '''
 logoFile = "icon.png"
 
-[modproperties.bestylewither]
-catalogueImageIcon = "icon.png"
-
 [[dependencies.bestylewither]]
-modId = "forge"
+modId = "neoforge"
 mandatory = true
-versionRange = "[48,)"
+versionRange = "[20.2,)"
 ordering = "NONE"
 side = "BOTH"
 

@@ -1,23 +1,23 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id "com.modrinth.minotaur" version "2.8.0"
 }
 
 architectury {
     platformSetupLoomIde()
-    forge()
+    neoForge()
 }
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
 
-    forge {
-        convertAccessWideners = true
-        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
+    /* neoForge {
+         convertAccessWideners = true
+         extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
 
-        mixinConfig "bestylewither-common.mixins.json"
-    }
+         mixinConfig "bestylewither-common.mixins.json"
+     }*/
 }
 
 configurations {
@@ -25,14 +25,14 @@ configurations {
     shadowCommon
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
+    developmentNeoForge.extendsFrom common
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:${rootProject.forge_version}"
+    neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 }
 
 processResources {
@@ -82,18 +82,18 @@ curseforge {
             releaseType = "${rootProject.release_type}"
             addGameVersion "${rootProject.minecraft_version}"
             addGameVersion 'Java 17'
-            addGameVersion "Forge"
+            addGameVersion "NeoForge"
 
             project.support_versions.split(",").each {
                 String version -> addGameVersion version
             }
 
             mainArtifact(file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}.jar")) {
-                displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Forge"
+                displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-NeoForge"
             }
 
             addArtifact(file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}-sources.jar")) {
-                displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Forge-sources"
+                displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-NeoForge-sources"
             }
         }
     }
@@ -103,12 +103,12 @@ if (System.getenv('modrinthapikey') != null && "${modrinth_id}" != '') {
     modrinth {
         token = System.getenv('modrinthapikey')
         projectId = "${rootProject.modrinth_id}"
-        versionName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Forge"
-        versionNumber = "${rootProject.minecraft_version}-${project.mod_version}-Forge"
+        versionName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-NeoForge"
+        versionNumber = "${rootProject.minecraft_version}-${project.mod_version}-NeoForge"
         versionType = "${project.release_type}"
         uploadFile = file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}.jar")
         gameVersions = List.of(project.support_versions.split(","))
-        loaders = ["forge"]
+        loaders = ["neoforge"]
         changelog = file('../LATEST_CHANGELOG.md').text
     }
 }
