@@ -4,15 +4,12 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.config.BESConfig;
+import net.morimori0317.bestylewither.util.BEStyleWitherUtils;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.ModConfigSpec;
-
-import java.io.*;
 
 public class BESConfigNeoForge implements BESConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -92,27 +89,7 @@ public class BESConfigNeoForge implements BESConfig {
     }
 
     private static boolean isPreEnableDoubleHealth() {
-        File configFile = new File(FMLPaths.CONFIGDIR.get().toFile(), BEStyleWither.MODID + "-pre.json");
-        configFile.getParentFile().mkdirs();
-
-        JsonObject jo;
-        if (configFile.exists()) {
-            try (Reader reader = new FileReader(configFile); Reader bufReader = new BufferedReader(reader)) {
-                jo = GSON.fromJson(bufReader, JsonObject.class);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            jo = new JsonObject();
-            jo.addProperty("Enable double health", DEFAULT.isEnableDoubleHealth());
-            try (Writer writer = new FileWriter(configFile); Writer bufWriter = new BufferedWriter(writer)) {
-                GSON.toJson(jo, bufWriter);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return jo.get("Enable double health").getAsBoolean();
+        return BEStyleWitherUtils.loadOrGenerateForgeBaseEnableDoubleHealth(FMLPaths.CONFIGDIR.get().toFile());
     }
 
 }
