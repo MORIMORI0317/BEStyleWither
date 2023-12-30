@@ -80,9 +80,6 @@ curseforge {
 
             addGameVersion "NeoForge"
 
-            addGameVersion "Server"
-            addGameVersion "Client"
-
             project.support_versions.split(",").each {
                 String version -> addGameVersion version
             }
