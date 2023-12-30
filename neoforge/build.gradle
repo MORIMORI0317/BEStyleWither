@@ -11,13 +11,6 @@ architectury {
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
-
-    /* neoForge {
-         convertAccessWideners = true
-         extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
-
-         mixinConfig "bestylewither-common.mixins.json"
-     }*/
 }
 
 configurations {
@@ -56,6 +49,8 @@ remapJar {
     dependsOn shadowJar
     archiveClassifier.set(null)
     setArchivesBaseName("${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}")
+
+    atAccessWideners.add loom.accessWidenerPath.get().asFile.name
 }
 
 sourcesJar {
@@ -82,7 +77,11 @@ curseforge {
             releaseType = "${rootProject.release_type}"
             addGameVersion "${rootProject.minecraft_version}"
             addGameVersion 'Java 17'
+
             addGameVersion "NeoForge"
+
+            addGameVersion "Server"
+            addGameVersion "Client"
 
             project.support_versions.split(",").each {
                 String version -> addGameVersion version

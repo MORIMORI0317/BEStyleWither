@@ -18,6 +18,8 @@ Please write according to [Keep a Changelog](https://keepachangelog.com/en/1.0.0
 
 ### Fixed
 
+- Fixed an issue where physical strength would not reach maximum when summoning
+
 ### Security
 
 ## [1.6.0] - 2023-06-14

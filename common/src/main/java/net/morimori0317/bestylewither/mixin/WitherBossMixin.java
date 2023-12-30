@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
@@ -78,6 +79,15 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
             var preMH = preBuilder.get(Attributes.MAX_HEALTH);
             double preVal = preMH != null ? preMH.getBaseValue() : 300;
             cir.getReturnValue().add(Attributes.MAX_HEALTH, preVal * 2d);
+        }
+    }
+
+    @Override
+    public void heal(float f) {
+        if (this.getInvulnerableTicks() > 0) {
+            super.heal(f * 2);
+        } else {
+            super.heal(f);
         }
     }
 
@@ -257,24 +267,26 @@ public abstract class WitherBossMixin extends Monster implements BEWitherBoss {
         deathTime++;
         bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
 
-        if (this.deathTime % 4 == 0)
+        if (this.deathTime % 4 == 0) {
             setForcedPowered(random.nextInt((int) Math.max(5 - ((float) this.deathTime / (20f * 10f) * 5f), 1)) == 0);
+        }
 
         if (!this.level().isClientSide()) {
             if (this.deathTime == MAX_WITHER_DEATH_TIME - 1) {
                 this.level().explode(this, this.getX(), this.getEyeY(), this.getZ(), 8f, false, Level.ExplosionInteraction.MOB);
-                if (!this.isSilent())
+                if (!this.isSilent()) {
                     this.level().globalLevelEvent(LevelEvent.SOUND_WITHER_BLOCK_BREAK, this.blockPosition(), 0);
+                }
 
                 SoundEvent soundevent = this.getDeathSound();
-                if (soundevent != null)
+                if (soundevent != null) {
                     this.playSound(soundevent, this.getSoundVolume() * 1.5f, this.getVoicePitch());
-            } else if (this.deathTime == MAX_WITHER_DEATH_TIME) {
+                }
+            } else if (this.deathTime >= MAX_WITHER_DEATH_TIME && !this.isRemoved()) {
                 this.lastHurtByPlayerTime = Math.max(lastHurtByPlayerTime, 1);
-                var dmg = lastDeathDamageSource == null ? level().damageSources().fellOutOfWorld() : lastDeathDamageSource;
+                DamageSource dmg = lastDeathDamageSource == null ? level().damageSources().fellOutOfWorld() : lastDeathDamageSource;
                 dropAllDeathLoot(dmg);
-
-                this.level().broadcastEntityEvent(this, (byte) 60);
+                this.level().broadcastEntityEvent(this, EntityEvent.POOF);
                 this.remove(RemovalReason.KILLED);
             }
         }

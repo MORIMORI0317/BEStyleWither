@@ -82,7 +82,11 @@ curseforge {
             releaseType = "${rootProject.release_type}"
             addGameVersion "${rootProject.minecraft_version}"
             addGameVersion 'Java 17'
+
             addGameVersion "Forge"
+
+            addGameVersion "Server"
+            addGameVersion "Client"
 
             project.support_versions.split(",").each {
                 String version -> addGameVersion version

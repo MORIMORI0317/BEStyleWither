@@ -32,6 +32,3 @@ mandatory = true
 versionRange = "[1.20.2,)"
 ordering = "NONE"
 side = "BOTH"
-
-[[mixins]]
-config = "bestylewither-common.mixins.json"
