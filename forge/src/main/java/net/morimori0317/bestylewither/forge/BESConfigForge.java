@@ -11,6 +11,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.config.BESConfig;
+import net.morimori0317.bestylewither.util.BEStyleWitherUtils;
 
 import java.io.*;
 
@@ -92,27 +93,6 @@ public class BESConfigForge implements BESConfig {
     }
 
     private static boolean isPreEnableDoubleHealth() {
-        File configFile = new File(FMLPaths.CONFIGDIR.get().toFile(), BEStyleWither.MODID + "-pre.json");
-        configFile.getParentFile().mkdirs();
-
-        JsonObject jo;
-        if (configFile.exists()) {
-            try (Reader reader = new FileReader(configFile); Reader bufReader = new BufferedReader(reader)) {
-                jo = GSON.fromJson(bufReader, JsonObject.class);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            jo = new JsonObject();
-            jo.addProperty("Enable double health", DEFAULT.isEnableDoubleHealth());
-            try (Writer writer = new FileWriter(configFile); Writer bufWriter = new BufferedWriter(writer)) {
-                GSON.toJson(jo, bufWriter);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return jo.get("Enable double health").getAsBoolean();
+        return BEStyleWitherUtils.loadOrGenerateForgeBaseEnableDoubleHealth(FMLPaths.CONFIGDIR.get().toFile());
     }
-
 }

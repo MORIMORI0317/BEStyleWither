@@ -14,7 +14,7 @@ Changelog to track updates for this mod.
 ### Removed
 
 ### Fixed
-
+- Fixed an issue where physical strength would not reach maximum when summoning
 ### Security
 
 ## [1.6.0] - 2023-06-14
