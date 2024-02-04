@@ -14,8 +14,13 @@ Changelog to track updates for this mod.
 ### Removed
 
 ### Fixed
-- Fixed an issue where physical strength would not reach maximum when summoning
+
 ### Security
+
+## [1.6.1] - 2024-02-04
+
+### Fixed
+- Fixed an issue where physical strength would not reach maximum when summoning
 
 ## [1.6.0] - 2023-06-14
 
@@ -38,7 +43,8 @@ Changelog to track updates for this mod.
 ### Fixed
 - Fixed a bug that could occur with the Wither killing explosion
 
-[Unreleased]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.6.1...HEAD
+[1.6.1]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.4.2...v1.5.0
 [1.4.2]: https://github.com/MORIMORI0317/BEStyleWither/compare/v1.4.1...v1.4.2
