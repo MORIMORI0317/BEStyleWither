@@ -10,6 +10,7 @@ import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.config.BESConfig;
 
 @Config(name = BEStyleWither.MODID)
+// @Config.Gui.Background("textures/block/bedrock.png")
 public class BESConfigFabric implements ConfigData, BESConfig {
     public boolean enableBounceBlueWitherSkull = DEFAULT.isEnableBounceBlueWitherSkull();
     public boolean enableMoreInertialBlueWitherSkull = DEFAULT.isEnableMoreInertialBlueWitherSkull();

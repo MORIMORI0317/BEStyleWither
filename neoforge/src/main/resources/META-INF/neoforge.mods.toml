@@ -14,7 +14,11 @@ description = '''
 This mod brings the behavior of Wither closer to Bedrock Edition.
 The ikisugi wither mod...
 '''
-logoFile = "icon.png"
+logoFile = "logo.png"
+
+[modproperties.bestylewither]
+catalogueImageIcon = "assets/bestylewither/icon.png"
+configuredBackground = "minecraft:textures/block/bedrock.png"
 
 [[dependencies.bestylewither]]
 modId = "neoforge"
