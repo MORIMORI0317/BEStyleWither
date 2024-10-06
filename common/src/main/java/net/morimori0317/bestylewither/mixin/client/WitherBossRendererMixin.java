@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.morimori0317.bestylewither.BEStyleWither;
-import net.morimori0317.bestylewither.entity.BEWitherBoss;
+import net.morimori0317.bestylewither.util.BEStyleWitherUtils;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,12 +22,15 @@ public class WitherBossRendererMixin {
     @Final
     private static ResourceLocation WITHER_INVULNERABLE_LOCATION;
 
-    @Inject(method = "scale(Lnet/minecraft/world/entity/boss/wither/WitherBoss;Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At("HEAD"))
-    private void scale(WitherBoss witherBoss, PoseStack poseStack, float f, CallbackInfo ci) {
-        if (!BEStyleWither.getConfig().isEnableExplodeByDie())
-            return;
+    // EnableExplodeByDie
 
-        float wd = ((BEWitherBoss) witherBoss).getWitherDeathTime(f);
+    @Inject(method = "scale(Lnet/minecraft/world/entity/boss/wither/WitherBoss;Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At("TAIL"))
+    private void scaleInject(WitherBoss witherBoss, PoseStack poseStack, float f, CallbackInfo ci) {
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie()) {
+            return;
+        }
+
+        float wd = BEStyleWitherUtils.getWitherDeltaDeathTime(witherBoss, f);
         if (wd > 0) {
             float wd2 = wd + 2f;
             float h = 1.0F + Mth.sin(wd2 * (wd2 / 20f) * 100f) * wd2 * 0.0075F;
@@ -42,12 +45,13 @@ public class WitherBossRendererMixin {
     }
 
     @Inject(method = "getTextureLocation(Lnet/minecraft/world/entity/boss/wither/WitherBoss;)Lnet/minecraft/resources/ResourceLocation;", at = @At("RETURN"), cancellable = true)
-    public void getTextureLocation(WitherBoss witherBoss, CallbackInfoReturnable<ResourceLocation> cir) {
-        if (!BEStyleWither.getConfig().isEnableExplodeByDie())
+    public void getTextureLocationInject(WitherBoss witherBoss, CallbackInfoReturnable<ResourceLocation> cir) {
+        if (!BEStyleWither.getConfig().isEnableExplodeByDie()) {
             return;
+        }
 
-        int wd = ((BEWitherBoss) witherBoss).getWitherDeathTime();
-        if (wd > 0)
+        if (witherBoss.deathTime > 0) {
             cir.setReturnValue(WITHER_INVULNERABLE_LOCATION);
+        }
     }
 }

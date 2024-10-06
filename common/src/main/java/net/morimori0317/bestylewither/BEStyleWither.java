@@ -10,7 +10,6 @@ public class BEStyleWither {
     public static final String MODID = "bestylewither";
 
     public static void init() {
-
     }
 
     public static BESConfig getConfig() {

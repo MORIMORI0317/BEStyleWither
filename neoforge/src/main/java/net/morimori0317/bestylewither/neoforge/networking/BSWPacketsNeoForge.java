@@ -1,27 +1,30 @@
 package net.morimori0317.bestylewither.neoforge.networking;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
-import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.networking.BSWPackets;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.network.NetworkRegistry;
-import net.neoforged.neoforge.network.simple.SimpleChannel;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class BSWPacketsNeoForge {
-    private static final String PROTOCOL_VERSION = "1";
+    public static final String PROTOCOL_VERSION = "1";
+
+
+    public static void handleWitherChargeDataOnClient(final BSWPackets.WitherChargeMessage data, final IPayloadContext context) {
+        BSWPackets.onWhitherChargePacket(data.entityId());
+    }
+
+    public static void handleWitherChargeDataOnServer(final BSWPackets.WitherChargeMessage data, final IPayloadContext context) {
+    }
+
+/*
     public static final SimpleChannel INSTANCE = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(BEStyleWither.MODID, "main_channel"))
             .networkProtocolVersion(() -> PROTOCOL_VERSION)
             .serverAcceptedVersions(PROTOCOL_VERSION::equals)
             .clientAcceptedVersions(PROTOCOL_VERSION::equals)
             .simpleChannel();
 
-    private static int index = 0;
+    private static int index = 0;*/
 
     public static void init() {
-        INSTANCE.messageBuilder(WhitherSkullBounceMessage.class, index++)
+   /*     INSTANCE.messageBuilder(WhitherSkullBounceMessage.class, index++)
                 .encoder(WhitherSkullBounceMessage::encode)
                 .decoder(WhitherSkullBounceMessage::decode)
                 .consumerNetworkThread((msg, ctx) -> {
@@ -43,10 +46,10 @@ public class BSWPacketsNeoForge {
                         }
                     });
                     ctx.setPacketHandled(true);
-                }).add();
+                }).add();*/
     }
 
-    public static class WhitherSkullBounceMessage {
+  /*  public static class WhitherSkullBounceMessage {
         public int entityId;
         public Vec3 vec;
 
@@ -84,5 +87,5 @@ public class BSWPacketsNeoForge {
             int id = buf.readInt();
             return new WhitherChargeMessage(id);
         }
-    }
+    }*/
 }

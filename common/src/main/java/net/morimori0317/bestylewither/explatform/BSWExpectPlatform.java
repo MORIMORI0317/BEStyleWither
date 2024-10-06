@@ -1,18 +1,13 @@
 package net.morimori0317.bestylewither.explatform;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.morimori0317.bestylewither.config.BESConfig;
 
 public class BSWExpectPlatform {
     @ExpectPlatform
-    public static void sendWhitherSkullBouncePacket(LevelChunk chunk, int entityId, Vec3 vec) {
-        throw new AssertionError();
-    }
-
-    @ExpectPlatform
-    public static void sendWhitherChargePacket(LevelChunk chunk, int entityId) {
+    public static void sendWhitherChargePacket(ServerLevel level, ChunkPos chunkPos, int entityId) {
         throw new AssertionError();
     }
 

@@ -1,20 +1,21 @@
 package net.morimori0317.bestylewither.entity.goal;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import net.morimori0317.bestylewither.BEStyleWither;
 import net.morimori0317.bestylewither.entity.BEWitherBoss;
 import net.morimori0317.bestylewither.explatform.BSWExpectPlatform;
+import net.morimori0317.bestylewither.mixin.WitherBossAccessor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 
 public class WitherChargeAttackGoal extends Goal {
-    public static final int chargeTime = 75;
-    public static final int chargeHoldTime = 50;
+    public static final int CHARGE_TIME = 75;
+    public static final int CHARGE_HOLD_TIME = 50;
     private final WitherBoss mob;
     @Nullable
     private LivingEntity target;
@@ -39,7 +40,7 @@ public class WitherChargeAttackGoal extends Goal {
         if (randed && mob.getRandom().nextInt(75) != 0)
             return false;
 
-        if (mob.getInvulnerableTicks() > 0 || !mob.isPowered() || ((BEWitherBoss) mob).getChargeCoolDown() > 0)
+        if (mob.getInvulnerableTicks() > 0 || !mob.isPowered() || ((BEWitherBoss) mob).beStyleWither$getInstance().getChargeCoolDown() > 0)
             return false;
         LivingEntity livingEntity = this.mob.getTarget();
         if (livingEntity != null && livingEntity.isAlive()) {
@@ -52,12 +53,11 @@ public class WitherChargeAttackGoal extends Goal {
     @Override
     public void start() {
 
-        if (!mob.level().isClientSide()) {
-            LevelChunk lch = (LevelChunk) mob.level().getChunk(mob.blockPosition());
-            BSWExpectPlatform.sendWhitherChargePacket(lch, mob.getId());
+        if (!mob.level().isClientSide() && mob.level() instanceof ServerLevel serverLevel) {
+            BSWExpectPlatform.sendWhitherChargePacket(serverLevel, mob.chunkPosition(), mob.getId());
         }
 
-        this.chargeTick = this.adjustedTickDelay(chargeTime);
+        this.chargeTick = this.adjustedTickDelay(CHARGE_TIME);
         this.mob.getNavigation().stop();
     }
 
@@ -65,7 +65,7 @@ public class WitherChargeAttackGoal extends Goal {
     public void stop() {
         this.chargeTick = 0;
         this.target = null;
-        ((BEWitherBoss) mob).setChargeCoolDown(200);
+        ((BEWitherBoss) mob).beStyleWither$getInstance().setChargeCoolDown(200);
         lookAt = null;
         bodyRot = 0f;
     }
@@ -78,7 +78,7 @@ public class WitherChargeAttackGoal extends Goal {
     @Override
     public void tick() {
         this.chargeTick = Math.max(0, this.chargeTick - 1);
-        if (this.chargeTick > this.adjustedTickDelay(chargeTime - chargeHoldTime)) {
+        if (this.chargeTick > this.adjustedTickDelay(CHARGE_TIME - CHARGE_HOLD_TIME)) {
             if (target != null) {
                 this.mob.getLookControl().setLookAt(target);
                 lookAt = mob.getLookAngle();
@@ -87,7 +87,7 @@ public class WitherChargeAttackGoal extends Goal {
                 mob.setDeltaMovement(Vec3.ZERO);
             }
         } else {
-            ((BEWitherBoss) mob).setDestroyBlocksTick(1);
+            ((WitherBossAccessor) mob).setDestroyBlocksTick(1);
 
             if (lookAt != null) {
                 this.mob.getLookControl().setLookAt(lookAt);

@@ -24,10 +24,14 @@ public class WitherBossModelMixin<T extends WitherBoss> {
     @Final
     private ModelPart tail;
 
+    // ChargeAttack
+
     @Inject(method = "setupAnim(Lnet/minecraft/world/entity/boss/wither/WitherBoss;FFFFF)V", at = @At("TAIL"))
     private void setupAnim(T witherBoss, float f, float g, float h, float i, float j, CallbackInfo ci) {
-        float ch = ((BEWitherBoss) witherBoss).getClientCharge(getPartialTicks());
-        float cp = ch / ((float) WitherChargeAttackGoal.chargeTime);
+        Minecraft mc = Minecraft.getInstance();
+        float delta = mc.getTimer().getGameTimeDeltaPartialTick(true);
+        float ch = ((BEWitherBoss) witherBoss).beStyleWither$getInstance().getClientChargeTick(delta);
+        float cp = ch / ((float) WitherChargeAttackGoal.CHARGE_TIME);
         cp = Math.abs(-0.5f + cp);
         cp = 1f - cp / 0.5f;
         cp = Math.min(cp, 0.3f) / 0.3f;
@@ -38,10 +42,5 @@ public class WitherBossModelMixin<T extends WitherBoss> {
             this.tail.setPos(-2.0F, 6.9F + Mth.cos(this.ribcage.xRot) * 10.0F, -0.5F + Mth.sin(this.ribcage.xRot) * 10.0F);
             this.tail.xRot += -val * b;
         }
-    }
-
-    private float getPartialTicks() {
-        var mc = Minecraft.getInstance();
-        return mc.isPaused() ? mc.pausePartialTick : mc.getFrameTime();
     }
 }

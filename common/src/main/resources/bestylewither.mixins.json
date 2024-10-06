@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "net.morimori0317.bestylewither.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
     "client.EnergySwirlLayerMixin",
@@ -10,8 +10,11 @@
     "client.WitherBossRendererMixin"
   ],
   "mixins": [
-    "AttributeSupplierBuilderAccessor",
-    "EntityAccessor",
+    "LivingEntityMixin",
+    "MobAccessor",
+    "PlayerMixin",
+    "ProjectileMixin",
+    "WitherBossAccessor",
     "WitherBossMixin",
     "WitherSkullMixin"
   ],
