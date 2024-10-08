@@ -79,8 +79,11 @@ task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge)
         project.support_versions.split(",").each {
             String version -> mainFile.addGameVersion(version)
         }
-        mainFile.addJavaVersion('Java 17')
+
+        mainFile.addJavaVersion('Java 21')
+
         mainFile.addModLoader('NeoForge')
+
         mainFile.addGameVersion('Client')
         mainFile.addGameVersion('Server')
 
