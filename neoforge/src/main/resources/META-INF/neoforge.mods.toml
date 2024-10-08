@@ -1,13 +1,13 @@
 modLoader = "javafml"
 loaderVersion = "[2,)"
-issueTrackerURL = "https://github.com/MORIMORI0317/BEStyleWither/issues"
 license = "GNU LGPLv3"
 
 [[mods]]
 modId = "bestylewither"
 version = "${version}"
 displayName = "BE Style Wither"
-displayURL = "https://www.curseforge.com/minecraft/mc-mods/be-style-wither"
+displayURL = "https://modrinth.com/mod/be-style-wither"
+issueTrackerURL = "https://github.com/MORIMORI0317/BEStyleWither/issues"
 updateJSONURL = "https://raw.githubusercontent.com/MORIMORI0317/BEStyleWither/main/neoforge_version_check.json"
 authors = "MORIMORI0317"
 description = '''

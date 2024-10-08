@@ -33,7 +33,12 @@
     "minecraft": ">=1.21.1",
     "fabric-api": "*"
   },
-  "suggests": {
-    "another-mod": "*"
+  "custom": {
+    "configured": {
+      "background": "minecraft:textures/block/bedrock.png"
+    },
+    "catalogue": {
+      "banner": "assets/bestylewither/logo.png"
+    }
   }
 }
