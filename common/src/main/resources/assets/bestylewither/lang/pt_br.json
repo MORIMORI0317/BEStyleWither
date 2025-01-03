@@ -1,0 +1,12 @@
+{
+  "text.autoconfig.bestylewither.title": "BE Style Wither",
+  "text.autoconfig.bestylewither.option.enableBounceBlueWitherSkull": "Habilitar o Salto do Crânio Wither Azul",
+  "text.autoconfig.bestylewither.option.enableMoreInertialBlueWitherSkull": "Ativar Mais Crânios Withers Azuis Inerciais",
+  "text.autoconfig.bestylewither.option.enableShootMoreBlueWitherSkull": "Habilitar Mais Disparos de Crânios Azuis",
+  "text.autoconfig.bestylewither.option.enableSpinAndWhiteSummon": "Habilitar Rotação e Invocação Branca",
+  "text.autoconfig.bestylewither.option.enableExplodeByHalfHealth": "Ativar Explosão por Metade da Saúde",
+  "text.autoconfig.bestylewither.option.enableExplodeByDie": "Habilitar Explosão por Morte",
+  "text.autoconfig.bestylewither.option.enableChargeAttack": "Ativar Ataque de Carga",
+  "text.autoconfig.bestylewither.option.enableDoubleHealth": "Ativar Saúde Dupla",
+  "text.autoconfig.bestylewither.option.enableMaintainWeakenedState": "Permitir Manter o Estado Enfraquecido"
+}
