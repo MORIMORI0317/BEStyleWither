@@ -1,0 +1,12 @@
+{
+  "text.autoconfig.bestylewither.title": "Визер в стиле BE",
+  "text.autoconfig.bestylewither.option.enableBounceBlueWitherSkull": "Включить отскок cинего черепа визера",
+  "text.autoconfig.bestylewither.option.enableMoreInertialBlueWitherSkull": "Включить более инерционный синий череп визера",
+  "text.autoconfig.bestylewither.option.enableShootMoreBlueWitherSkull": "Включить стрельбу большим количеством синих черепов визера",
+  "text.autoconfig.bestylewither.option.enableSpinAndWhiteSummon": "Включить вращение и беление при призыве",
+  "text.autoconfig.bestylewither.option.enableExplodeByHalfHealth": "Включить взрыв при половине здоровья",
+  "text.autoconfig.bestylewither.option.enableExplodeByDie": "Включить взрыв после смерти",
+  "text.autoconfig.bestylewither.option.enableChargeAttack": "Включить таранящую атаку",
+  "text.autoconfig.bestylewither.option.enableDoubleHealth": "Включить удвоение здоровья",
+  "text.autoconfig.bestylewither.option.enableMaintainWeakenedState": "Включить поддержание ослабленного состояния"
+}
